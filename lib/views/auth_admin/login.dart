@@ -1,0 +1,139 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:kasiradmin/controlllers/bottom_bar_controller/bottom_bar_controller.dart';
+import 'package:kasiradmin/controlllers/user_admin_controller/user_admin_controller.dart';
+
+class LoginPage extends StatelessWidget {
+  final UserAdminController userController = Get.put(UserAdminController());
+  final rememberMe = false.obs;
+
+  LoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            height: 300,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFE040FB),
+                  Color.fromARGB(255, 114, 94, 225),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            padding: const EdgeInsets.only(
+                top: 200, left: 16, right: 16, bottom: 16),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16.0),
+              ),
+              elevation: 10,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "LOGIN",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF9C27B0),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: userController.emailController,
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        prefixIcon: Icon(BootstrapIcons.at),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: userController.passwordController,
+                      decoration: const InputDecoration(
+                        labelText: "Password",
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                      obscureText: true,
+                      keyboardType: TextInputType.text,
+                    ),
+                    const SizedBox(height: 10),
+                    Obx(() => CheckboxListTile(
+                          title: const Text("Ingat saya"),
+                          value: rememberMe.value,
+                          activeColor: const Color(0xFF9C27B0),
+                          onChanged: (newValue) {
+                            rememberMe.value = newValue!;
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                        )),
+                    const SizedBox(height: 20),
+                    Obx(() {
+                      if (userController.isLoading.value) {
+                        return const CircularProgressIndicator();
+                      } else {
+                        return ElevatedButton(
+                          onPressed: () async {
+                            bool success = await userController.login();
+                            if (success) {
+                              final BottomBarController bottomBarController =
+                                  Get.find();
+                              bottomBarController.resetToHome();
+                              Get.offAllNamed('/halaman_utama');
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 114, 94, 225),
+                            minimumSize: const Size(double.infinity, 48),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 20),
+                          ),
+                          child: const Text(
+                            "LOGIN",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }
+                    }),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Belum punya akun?"),
+                        TextButton(
+                          onPressed: () {
+                            Get.toNamed("/register");
+                          },
+                          child: const Text(
+                            "Daftar",
+                            style: TextStyle(
+                              color: Color(0xFF9C27B0),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
